@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useParams } from '@/lib/route-params';
 import { useQuery } from '@tanstack/react-query';
 import { Archive, ArrowLeft, ListTodo } from 'lucide-react';
 import { Container } from '@/components/layout/container';

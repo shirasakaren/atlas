@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useParams } from 'next/navigation';
+import { useParams } from '@/lib/route-params';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { AlertTriangle, CalendarClock, CalendarDays, CircleDashed } from 'lucide-react';

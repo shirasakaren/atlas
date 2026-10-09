@@ -93,6 +93,8 @@ jobs:
       N8N_BASE_URL: http://localhost:5678
       N8N_WEBHOOK_SECRET: dummy
       INTERNAL_JWT_SECRET: dummy-internal-secret
+      # Required by env validation (config/env.validation.ts); throwaway value.
+      GODMODE_PASSPHRASE: dummy-godmode-passphrase
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 

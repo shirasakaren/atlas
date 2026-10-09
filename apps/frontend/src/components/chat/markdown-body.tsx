@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { EmbedFor, isEmbeddable } from './embed-renderer';
+import { DEMO } from '@/lib/demo/config';
 
 /**
  * Renders a chat message body. The pipeline:
@@ -45,7 +46,8 @@ interface Segment {
  * renderer we transform to `**@Name**` so they render as a styled
  * bold token, userId metadata only matters on the server.
  */
-const MENTION_REGEX = /@\[([^\]]+)\]\([0-9a-f-]{8,}\)/g;
+// Demo user ids look like `usr_maya_brennan`, not UUIDs.
+const MENTION_REGEX = DEMO ? /@\[([^\]]+)\]\([\w-]{8,}\)/g : /@\[([^\]]+)\]\([0-9a-f-]{8,}\)/g;
 
 function transformMentions(input: string): string {
   return input.replace(MENTION_REGEX, '**@$1**');

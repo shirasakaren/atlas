@@ -1,4 +1,7 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
+import { DEMO } from '@/lib/demo/config';
+import { DemoLogin } from '@/components/demo/demo-login';
 import { getStoredSession } from '@/lib/auth-client';
 import { sanitizeReturnTo } from '@/lib/auth-redirect';
 import { Wordmark } from '@/components/brand/wordmark';
@@ -87,6 +90,14 @@ function truncateDetail(detail: string, max = 400): string {
 }
 
 export default async function LoginPage({ searchParams }: PageProps) {
+  // Static demo build: no backend to ask, one-click persona sign-in instead.
+  if (DEMO) {
+    return (
+      <Suspense fallback={null}>
+        <DemoLogin />
+      </Suspense>
+    );
+  }
   const session = getStoredSession();
   const params = await searchParams;
   const config = await loadPublicConfig();

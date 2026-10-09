@@ -10,10 +10,15 @@ paths = [
   '''pnpm-lock\.yaml$''',
   # Phase 0 auth tests generate throwaway RSA/HMAC keys at runtime.
   '''apps/backend/src/modules/auth/keycloak-token\.service\.spec\.ts$''',
+  # Static-demo mock API + seed data: fabricated people, a settings catalog of
+  # setting *names*, fake client ids. Nothing in it is a credential.
+  '''apps/frontend/src/lib/demo/''',
 ]
 # `replace_me*` / `change-this` are the documented placeholders in .env.example
 # and docs; never real credentials.
 regexes = [
   '''replace_me[a-z_]*''',
   '''change-this[a-z-]*''',
+  # Settings-registry keys like `integrations.n8n.enabled` (identifiers, not secrets).
+  '''integrations\.[a-z0-9_]+\.enabled''',
 ]

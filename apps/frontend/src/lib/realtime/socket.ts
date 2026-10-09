@@ -2,6 +2,8 @@
 
 import { io, type Socket } from 'socket.io-client';
 import { getStoredSession } from '@/lib/auth-client';
+import { DEMO } from '@/lib/demo/config';
+import { createDemoSocket } from '@/lib/demo/realtime';
 
 /**
  * Lazy socket.io singletons for the `/chat` and `/voice` namespaces.
@@ -32,6 +34,8 @@ function makeSocket(namespace: '/chat' | '/voice' | '/notifications'): Socket | 
   if (typeof window === 'undefined') return null;
   const session = getStoredSession();
   if (!session) return null;
+  // Demo build: in-browser fake socket (the simulated server lives in lib/demo).
+  if (DEMO) return createDemoSocket(namespace);
   return io(`${resolveSocketUrl()}${namespace}`, {
     transports: ['websocket'],
     auth: { token: session.sessionId },

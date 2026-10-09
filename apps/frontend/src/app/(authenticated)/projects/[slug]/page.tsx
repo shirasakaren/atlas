@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams } from '@/lib/route-params';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import {

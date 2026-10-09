@@ -3,5 +3,17 @@
   "rules": {
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "react-hooks/exhaustive-deps": "warn"
-  }
+  },
+  "overrides": [
+    {
+      // In-browser mock API for the static demo: it deliberately mimics loosely
+      // typed HTTP bodies and socket.io payloads.
+      "files": ["src/lib/demo/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-empty-object-type": "off",
+        "@typescript-eslint/no-unused-expressions": "off"
+      }
+    }
+  ]
 }

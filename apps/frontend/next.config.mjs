@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 /** @type {import('next').NextConfig} */
@@ -23,20 +24,40 @@ const securityHeaders = [
   },
 ];
 
+// Static, backend-less portfolio demo (GitHub Pages). Built by scripts/build-demo.mjs.
+const isDemo = process.env.NEXT_PUBLIC_DEMO === 'true';
+
 const nextConfig = {
-  output: 'standalone',
-  // Monorepo: standalone output tracing must root at the workspace root so
-  // pnpm-workspace-linked dependencies are traced into .next/standalone.
-  outputFileTracingRoot: path.join(process.cwd(), '../..'),
+  ...(isDemo
+    ? {
+        // Fully static export; the in-browser mock API lives in src/lib/demo.
+        output: 'export',
+        eslint: { ignoreDuringBuilds: true },
+      }
+    : {
+        output: 'standalone',
+        // Monorepo: standalone output tracing must root at the workspace root so
+        // pnpm-workspace-linked dependencies are traced into .next/standalone.
+        outputFileTracingRoot: path.join(process.cwd(), '../..'),
+        async headers() {
+          return [{ source: '/:path*', headers: securityHeaders }];
+        },
+      }),
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
     typedRoutes: true,
   },
-  async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+  webpack(config) {
+    if (isDemo) {
+      // No LiveKit SFU in the static demo: swap in a simulated room.
+      const mock = path.join(process.cwd(), 'src/lib/demo/livekit-mock.ts');
+      if (fs.existsSync(mock)) config.resolve.alias['livekit-client'] = mock;
+    }
+    return config;
   },
   images: {
+    unoptimized: isDemo,
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.labmgm.org' },
       { protocol: 'https', hostname: '*.amazonaws.com' },

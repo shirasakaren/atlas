@@ -17,7 +17,8 @@
     "themes:generate": "node scripts/generate-theme-css.mjs",
     "themes:check": "node scripts/check-themes.mjs",
     "test:e2e": "playwright test --project=setup --project=e2e",
-    "test:smoke": "playwright test --project=smoke"
+    "test:smoke": "playwright test --project=smoke",
+    "build:demo": "node scripts/build-demo.mjs"
   },
   "dependencies": {
     "@blocknote/ariakit": "0.51.3",

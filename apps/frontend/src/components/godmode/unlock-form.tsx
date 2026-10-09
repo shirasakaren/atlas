@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { godmodeFetch, godmodePaths, storeGodmodeToken } from '@/lib/godmode/client';
 import { usePageTitle } from '@/lib/page-title';
+import { DEMO } from '@/lib/demo/config';
 
 interface UnlockResult {
   token: string;
@@ -94,6 +95,15 @@ export function UnlockForm({ onUnlocked }: { onUnlocked: (token: string) => void
         (<span className="font-mono text-[13px]">GODMODE_PASSPHRASE</span>). This is the
         superadmin control plane, everything on the instance can be changed from here.
       </p>
+
+      {DEMO ? (
+        <p
+          role="note"
+          className="mt-4 rounded border border-brand-blue/30 bg-brand-blue-50 px-4 py-2.5 text-[13px] text-ink"
+        >
+          Demo: any passphrase works. Nothing you change here leaves your browser.
+        </p>
+      ) : null}
 
       <div className="mt-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
