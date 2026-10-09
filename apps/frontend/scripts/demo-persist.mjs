@@ -20,7 +20,7 @@ if (!process.env.DEMO_BASE) {
   await new Promise((r) => setTimeout(r, 800));
 }
 const API = 'https://demo.atlas.invalid/api/v1';
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: process.env.PW_ARGS ? process.env.PW_ARGS.split('|') : [] });
 let failed = 0;
 const check = (name, ok, d = '') => {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${d ? ` — ${d}` : ''}`);
