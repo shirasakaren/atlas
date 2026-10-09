@@ -1,6 +1,6 @@
 {
   "name": "atlas",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Atlas — monorepo for Ren's project HQ: Next.js web app (apps/frontend) and NestJS API (apps/backend).",
   "license": "AGPL-3.0-only",
