@@ -26,6 +26,11 @@ import {
   type DemoSocket,
 } from '../realtime';
 
+/** Uniform [0,1) from Web Crypto (ambient simulation randomness; no seeding needed). */
+function rand(): number {
+  return crypto.getRandomValues(new Uint32Array(1))[0]! / 4294967296;
+}
+
 export type VoiceKind = 'STANDARD' | 'STAGE';
 export type VoiceRole = 'SPEAKER' | 'AUDIENCE';
 export type ScreenScene = 'dashboard' | 'slides' | 'code';
@@ -314,7 +319,7 @@ function eligibleBots(channel: VoiceChannelRec): string[] {
 }
 
 function pickRandom<T>(arr: readonly T[]): T | undefined {
-  return arr.length ? arr[Math.floor(Math.random() * arr.length)] : undefined;
+  return arr.length ? arr[Math.floor(rand() * arr.length)] : undefined;
 }
 
 function ambientTick(): void {
@@ -327,13 +332,13 @@ function ambientTick(): void {
   // otherwise a random channel that already has people or is a lobby room.
   const lively = active.filter((c) => livePresence(c.id).some((p) => p.sim) || !c.projectId);
   const target =
-    meChannel && Math.random() < 0.45 ? channelById(meChannel) : pickRandom(lively.length ? lively : active);
+    meChannel && rand() < 0.45 ? channelById(meChannel) : pickRandom(lively.length ? lively : active);
   if (!target) return;
   const bots = livePresence(target.id).filter((p) => p.sim);
   const cap = target.userLimit ?? (target.kind === 'STAGE' ? 24 : 7);
   const total = livePresence(target.id).length;
   const wantJoin =
-    total === 0 || (total < 2 ? Math.random() < 0.8 : total < Math.min(cap, 6) && Math.random() < 0.55);
+    total === 0 || (total < 2 ? rand() < 0.8 : total < Math.min(cap, 6) && rand() < 0.55);
 
   if (wantJoin && total < cap) {
     const uid = pickRandom(eligibleBots(target));
@@ -341,11 +346,11 @@ function ambientTick(): void {
       addPresence(target, uid, {
         sim: true,
         role: target.kind === 'STAGE' ? 'AUDIENCE' : 'SPEAKER',
-        micOff: Math.random() < 0.12,
-        camera: target.kind === 'STANDARD' && Math.random() < 0.1,
+        micOff: rand() < 0.12,
+        camera: target.kind === 'STANDARD' && rand() < 0.1,
       });
     }
-  } else if (bots.length > 0 && (total > 3 || Math.random() < 0.35)) {
+  } else if (bots.length > 0 && (total > 3 || rand() < 0.35)) {
     const leaver = pickRandom(bots.filter((p) => p.role !== 'SPEAKER' || target.kind !== 'STAGE'));
     if (leaver) removePresence(target, leaver.userId, 'leave');
   }
@@ -355,7 +360,7 @@ function ambientTick(): void {
     const quiet = livePresence(target.id).filter((p) => p.sim && p.role === 'AUDIENCE' && !p.handRaisedAt);
     const raised = livePresence(target.id).filter((p) => p.handRaisedAt).length;
     const p = pickRandom(quiet);
-    if (p && raised < 4 && Math.random() < 0.35) {
+    if (p && raised < 4 && rand() < 0.35) {
       p.handRaisedAt = nowIso();
       touchPresence(target, p);
       pushChannelEvent(target, 'voice.stage.hand.raised', {
