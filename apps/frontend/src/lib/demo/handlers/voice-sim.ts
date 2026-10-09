@@ -13,7 +13,7 @@
  */
 import { tbl, type Rec } from '../db';
 import { ME_ID } from '../config';
-import { hashString } from '../prng';
+import { createRng, hashString } from '../prng';
 import { nowIso } from '../clock';
 import { users, members, projects } from '../store';
 import { userSummary } from '../access';
@@ -26,9 +26,10 @@ import {
   type DemoSocket,
 } from '../realtime';
 
-/** Uniform [0,1) from Web Crypto (ambient simulation randomness; no seeding needed). */
+/** Ambient simulation jitter (who joins/leaves next); not security-relevant, so the demo PRNG is plenty. */
+const ambient = createRng(Date.now());
 function rand(): number {
-  return crypto.getRandomValues(new Uint32Array(1))[0]! / 4294967296;
+  return ambient.next();
 }
 
 export type VoiceKind = 'STANDARD' | 'STAGE';
