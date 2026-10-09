@@ -30,7 +30,7 @@ if (!base) {
   await new Promise((r) => setTimeout(r, 800));
 }
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: process.env.PW_ARGS ? process.env.PW_ARGS.split('|') : [] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const page = await ctx.newPage();
 const problems = [];

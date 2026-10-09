@@ -28,7 +28,7 @@ if (!base) {
 }
 const API = 'https://demo.atlas.invalid/api/v1';
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: process.env.PW_ARGS ? process.env.PW_ARGS.split('|') : [] });
 const ctx = await browser.newContext({
   viewport: { width: 1440, height: 900 },
   colorScheme: arg('--theme', 'light'),
