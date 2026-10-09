@@ -17,6 +17,7 @@ import { useSaveSurface, SaveBadge } from '@/lib/save-coordinator';
 import { RevisionHistoryDrawer } from '@/components/pmo/revision-history-drawer';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { DEMO } from '@/lib/demo/config';
 import type { ProjectNote, SessionUser, YjsTokenResponse } from '@/lib/types';
 
 /**
@@ -437,6 +438,15 @@ function NoteLoadingOverlay() {
 }
 
 function StatusPill({ status }: { status: 'connecting' | 'connected' | 'offline' }) {
+  // Demo: there is no realtime server by design; present the snapshot autosave neutrally.
+  if (DEMO && status === 'offline') {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-3" title="Changes are saved automatically.">
+        <span className="h-2 w-2 rounded-full bg-brand-green-strong" />
+        Autosave on
+      </span>
+    );
+  }
   if (status === 'offline') {
     return (
       <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-3" title="Realtime collaboration is off, your edits are still saved to this note.">

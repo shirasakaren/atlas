@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { DEMO } from '@/lib/demo/config';
+import { DEMO_LEGAL_TEXT } from '@/lib/demo/legal';
 import { ArrowLeft } from 'lucide-react';
 import { PatternCorner } from '@/components/brand/pattern-corner';
 import { ShapeSignature } from '@/components/brand/shape-signature';
@@ -36,13 +38,20 @@ function parseBlocks(text: string): Block[] {
     });
 }
 
+// Static export needs the full set of legal pages up front.
+export function generateStaticParams() {
+  return Object.keys(TITLES).map((page) => ({ page }));
+}
+
 export default async function LegalPage({ params }: { params: Promise<{ page: string }> }) {
   const { page } = await params;
   const title = TITLES[page];
   if (!title) notFound();
 
   let text = '';
-  try {
+  if (DEMO) {
+    text = DEMO_LEGAL_TEXT[page] ?? '';
+  } else try {
     const res = await fetch(`${API_BASE}/public-config/legal/${page}`, { cache: 'no-store' });
     if (res.ok) {
       const data = (await res.json()) as { text?: string };

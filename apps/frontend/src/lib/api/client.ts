@@ -3,6 +3,7 @@
 import { clearSession, getSessionId } from '@/lib/auth-client';
 import { sanitizeReturnTo } from '@/lib/auth-redirect';
 import { ApiError } from './error';
+import { DEMO } from '@/lib/demo/config';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
 
@@ -103,6 +104,7 @@ export async function uploadToPresigned(
   onProgress?: (pct: number) => void,
   contentType?: string,
 ) {
+  if (DEMO) return demoUpload(uploadUrl, file, onProgress);
   return new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('PUT', uploadUrl);
@@ -116,6 +118,17 @@ export async function uploadToPresigned(
     xhr.onerror = () => reject(new Error('Upload network error'));
     xhr.send(file);
   });
+}
+
+/** Demo build: keep the "upload" in the browser (see lib/demo/blobs.ts). */
+async function demoUpload(uploadUrl: string, file: File, onProgress?: (pct: number) => void) {
+  const { fileToDataUrl, putBlob, s3KeyFromUrl } = await import('@/lib/demo/blobs');
+  const key = s3KeyFromUrl(uploadUrl);
+  onProgress?.(20);
+  const dataUrl = await fileToDataUrl(file);
+  onProgress?.(80);
+  if (key) putBlob(key, dataUrl, file.type, file.size);
+  onProgress?.(100);
 }
 
 // See the incident notes for gallery fractional reordering before changing defaults

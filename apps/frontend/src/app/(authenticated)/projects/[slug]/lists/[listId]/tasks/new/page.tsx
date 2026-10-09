@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams } from '@/lib/route-params';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, CalendarRange, Flag, Users } from 'lucide-react';
 import { api } from '@/lib/api/client';

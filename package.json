@@ -15,6 +15,7 @@
     "dev:backend": "pnpm --filter @atlas/backend dev",
     "build": "pnpm -r build",
     "build:frontend": "pnpm --filter @atlas/frontend build",
+    "build:demo": "pnpm --filter @atlas/frontend build:demo",
     "build:backend": "pnpm --filter @atlas/backend build",
     "start:backend": "pnpm --filter @atlas/backend start:prod",
     "lint": "pnpm -r lint",

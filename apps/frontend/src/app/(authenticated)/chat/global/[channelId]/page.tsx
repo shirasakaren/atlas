@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams } from '@/lib/route-params';
 import { getStoredSession } from '@/lib/auth-client';
 import { ChatLayout } from '@/components/chat/chat-layout';
 import { usePageTitle } from '@/lib/page-title';

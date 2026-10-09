@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useParams } from 'next/navigation';
+import { useParams } from '@/lib/route-params';
 import { isPmoEnabled } from '@/lib/hooks/use-pmo-enabled';
 import { TeamView } from '@/components/pmo/views/team-view';
 

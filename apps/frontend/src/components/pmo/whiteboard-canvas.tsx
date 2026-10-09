@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { useConfirm } from '@/components/ui/confirm';
 import { cn } from '@/lib/utils';
+import { DEMO } from '@/lib/demo/config';
 import type { SessionUser, Whiteboard, YjsTokenResponse } from '@/lib/types';
 
 export function WhiteboardCanvas({
@@ -99,6 +100,9 @@ export function WhiteboardCanvas({
 
   const surfaceId = `whiteboard:${wbId}`;
   const lastFlushed = React.useRef<string | undefined>(undefined);
+  // Demo only: no Yjs, so the stored scene is loaded via initialData and we only save real edits.
+  const demoDirty = React.useRef(false);
+  const demoSig = React.useRef<string | undefined>(undefined);
 
   // See note-editor.tsx for why this gate exists. Same bug class:
   // before the Yjs binding finishes its initial sync, Excalidraw's
@@ -166,6 +170,7 @@ export function WhiteboardCanvas({
     (mode: 'async' | 'beacon') => {
       // Refuse to save until Yjs has finished its initial sync.
       if (!syncedRef.current) return;
+      if (DEMO && !demoDirty.current) return;
       const exApi = apiRef.current;
       if (!exApi) return;
       const scene = {
@@ -212,6 +217,7 @@ export function WhiteboardCanvas({
       // canvas. Treating that as a user edit would queue an empty-
       // scene save during a tab switch.
       if (!syncedRef.current) return;
+      demoDirty.current = true;
       save.markDirty();
       clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => flushScene('async'), 2000);
@@ -224,6 +230,15 @@ export function WhiteboardCanvas({
   const handleChange = React.useCallback(
     (elements: readonly ExElement[]) => {
       const all = apiRef.current?.getSceneElementsIncludingDeleted() ?? elements;
+      if (DEMO) {
+        // Ignore the onChange fired by loading the stored scene (and pure zoom/scroll).
+        const sig = all.map((e) => `${e.id}:${e.version}`).join('|');
+        if (demoSig.current === undefined || sig === demoSig.current) {
+          demoSig.current = sig;
+          return;
+        }
+        demoSig.current = sig;
+      }
       bindingRef.current?.pushLocal(all);
       persistSnapshot();
     },
@@ -276,7 +291,8 @@ export function WhiteboardCanvas({
         if (!ok) {
           return;
         }
-        bindingRef.current?.replaceAll(elements);
+        if (bindingRef.current) bindingRef.current.replaceAll(elements);
+        else apiRef.current?.updateScene({ elements });
         persistSnapshot();
         show({ tone: 'success', title: 'Whiteboard imported' });
       } catch (err) {
@@ -287,6 +303,13 @@ export function WhiteboardCanvas({
   );
 
   if (tokenQuery.isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center text-ink-3">
+        <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.25} />
+      </div>
+    );
+  }
+  if (DEMO && whiteboardQuery.isLoading) {
     return (
       <div className="flex h-full items-center justify-center text-ink-3">
         <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.25} />
@@ -357,6 +380,7 @@ export function WhiteboardCanvas({
       </div>
       <div className="relative flex-1 overflow-hidden rounded-lg border border-line">
         <Excalidraw
+          initialData={DEMO ? demoInitialData(whiteboardQuery.data?.sceneSnapshot) : undefined}
           excalidrawAPI={(exApi) => {
             apiRef.current = exApi as unknown as ExcalidrawApiLike;
             tryBind();
@@ -393,7 +417,27 @@ export function WhiteboardCanvas({
   );
 }
 
+/** Demo: seed the canvas from the stored scene (there is no Yjs doc to hydrate from). */
+function demoInitialData(scene: unknown) {
+  const s = scene as { elements?: unknown[]; appState?: Record<string, unknown>; files?: Record<string, unknown> } | null;
+  if (!s || !Array.isArray(s.elements) || s.elements.length === 0) return undefined;
+  return {
+    elements: s.elements,
+    appState: { viewBackgroundColor: '#ffffff', ...(s.appState ?? {}) },
+    files: s.files ?? {},
+    scrollToContent: true,
+  } as never;
+}
+
 function StatusPill({ status }: { status: 'connecting' | 'connected' | 'offline' }) {
+  if (DEMO) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-3" title="Changes are saved automatically.">
+        <span className="h-2 w-2 rounded-full bg-brand-green-strong" />
+        Autosave on
+      </span>
+    );
+  }
   if (status === 'offline') {
     return (
       <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-3">

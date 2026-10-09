@@ -101,7 +101,7 @@ export default function ProjectsBrowsePage() {
           Discover
         </h1>
         <p className="max-w-prose text-body text-ink-2">
-          {q ? <>Showing results for <span className="font-medium text-ink">&ldquo;{q}&rdquo;</span>.</> : 'Find what Ren is working on. Filter by phase, tags, or open roles.'}
+          {q ? <>Showing results for <span className="font-medium text-ink">&ldquo;{q}&rdquo;</span>.</> : (process.env.NEXT_PUBLIC_DEMO === 'true' ? 'Browse every project across Halcyon Global. Filter by phase, tags, or open roles.' : 'Find what Ren is working on. Filter by phase, tags, or open roles.')}
         </p>
       </div>
 

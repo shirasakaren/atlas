@@ -5,8 +5,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { cn } from '@/lib/utils';
+import { DEMO } from '@/lib/demo/config';
 
-const MENTION_REGEX = /@\[([^\]]+)\]\(([0-9a-f-]{8,})\)/g;
+// Demo ids look like usr_maya_brennan rather than UUIDs, so widen the id charset there.
+const ID_CLASS = DEMO ? '[0-9a-zA-Z_-]{8,}' : '[0-9a-f-]{8,}';
+
+const MENTION_REGEX = new RegExp(`@\\[([^\\]]+)\\]\\((${ID_CLASS})\\)`, 'g');
 
 /**
  * Renders GFM markdown with two PMO-specific augmentations:
@@ -65,7 +69,7 @@ function MentionAwareText({ children }: { children: React.ReactNode }) {
   // react-markdown passes text content as the only child. Walk for sentinels.
   if (typeof children !== 'string') return <>{children}</>;
   const text = children;
-  const re = /@@MENTION-([0-9a-f-]{8,})::([^@]+?)@@/g;
+  const re = new RegExp(`@@MENTION-(${ID_CLASS})::([^@]+?)@@`, 'g');
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let m: RegExpExecArray | null;

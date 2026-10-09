@@ -83,6 +83,15 @@ Consequences:
 
 `NEXT_PUBLIC_*` vars are **baked into the build** via Docker `--build-arg`. Changing them requires a rebuild, not just a restart. Server-only vars (`KEYCLOAK_CLIENT_SECRET`, `AUTH_*`) come from the `.env` file on the deploy host. Copy the root `.env.example` for local dev.
 
+### Demo mode (static GitHub Pages site)
+
+`NEXT_PUBLIC_DEMO=true` builds a backend-less portfolio demo (`pnpm build:demo` → `apps/frontend/dist-demo`, deployed by `.github/workflows/demo-pages.yml` to atlas.creations.ren). The whole API is mocked in the browser by `src/lib/demo/` (read its README before touching it): `window.fetch` is replaced, handlers run over a seeded in-memory DB, and each visitor's edits live in an IndexedDB overlay.
+
+- Everything demo-specific is gated on `DEMO` (`@/lib/demo/config`) and must not change normal behavior. Use `useParams` from `@/lib/route-params` (not `next/navigation`): static export pre-renders each dynamic route once with the placeholder `_` and the real ids come from the URL.
+- Each dynamic segment needs a server `layout.tsx` exporting `generateStaticParams = () => demoStaticParams('<param>')`. New pages with dynamic params must also be added to `src/lib/demo/route-table.ts`.
+- `scripts/build-demo.mjs` builds from a throwaway copy that drops server-only files (`app/api`, `middleware.ts`, `app/health`, OG/Apple icon routes, the `@modal` intercepting route). New API endpoints used by the UI need a mock handler under `src/lib/demo/handlers/`.
+- Verify with `node scripts/demo-smoke.mjs`, `demo-tour.mjs` and `demo-persist.mjs` after `pnpm build:demo`; `npx tsx --tsconfig tsconfig.json scripts/demo-check.ts GET /projects` exercises the engine in Node.
+
 ## Backend (`apps/backend`)
 
 NestJS 10 with 15 feature modules under `src/modules/`, namespaced config in

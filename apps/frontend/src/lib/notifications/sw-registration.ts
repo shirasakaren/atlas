@@ -22,6 +22,8 @@ export function registerServiceWorker(): Promise<ServiceWorkerRegistration | nul
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
     return Promise.resolve(null);
   }
+  // Static demo: no push backend, no service worker.
+  if (process.env.NEXT_PUBLIC_DEMO === 'true') return Promise.resolve(null);
   if (registrationPromise) return registrationPromise;
   registrationPromise = navigator.serviceWorker
     .register(SW_URL, { scope: '/' })
